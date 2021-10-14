@@ -1,4 +1,4 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 setup(
     name="djmongouser",
@@ -8,7 +8,7 @@ setup(
     author="hao",
     author_email="hl7gr@virginia.edu",
     license="MIT",
-    packages=["djmongouser"],
+    packages=find_packages(),
     zip_safe=False,
     install_requires=[
         "djongo==1.3.1",

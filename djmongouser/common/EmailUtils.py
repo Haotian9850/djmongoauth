@@ -1,5 +1,5 @@
 from django.core.mail import send_mail
-from common.Email import Email
+from .Email import Email
 
 def send_email(email:Email):
     send_mail(

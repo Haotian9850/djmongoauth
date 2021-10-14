@@ -1,7 +1,7 @@
 import json 
 
 from django.contrib.auth.hashers import make_password
-from models import User
+from .user.models import User
 from DjMongoUserError import DjMongoUserError
 from common.EmailTypes import EmailTypes
 

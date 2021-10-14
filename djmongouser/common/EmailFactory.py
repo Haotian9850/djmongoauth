@@ -1,8 +1,8 @@
 from django.conf import settings
-from common.EmailTypes import EmailTypes
+from .EmailTypes import EmailTypes
 from datetime import datetime
 
-from common.Email import Email
+from .Email import Email
 
 class EmailFactory():
     SITE_URL = settings.SITE_URL

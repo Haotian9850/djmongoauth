@@ -1,0 +1,1 @@
+This directory contains a sample Django project which uses `dj-mongo-user`
