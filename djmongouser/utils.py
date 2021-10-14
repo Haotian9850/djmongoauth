@@ -1,8 +1,9 @@
 import json 
 
 from django.contrib.auth.hashers import make_password
-from models import User, Session, TemporaryAuthenticator
+from models import User
 from DjMongoUserError import DjMongoUserError
+from common.EmailTypes import EmailTypes
 
 def login(request)->str:
     if request.method != "POST":
@@ -36,21 +37,34 @@ def register(request):
 
 
 def send_verification_email(request):
-    pass 
+    if request.method != "POST":
+        raise DjMongoUserError("Verification email request must be a POST request!")
+    try:
+        User.send_email(request, type=EmailTypes.VERIFY)
+    except Exception:
+        raise DjMongoUserError("Cannot send verification email!")
 
 def handle_email_verificiation_request(request):
-    pass 
+    if request.method != "PUT":
+        raise DjMongoUserError("Verification email processing request must be a PUT request!")
+    try:
+        User.handle_email_request(request, type=EmailTypes.VERIFY)
+    except Exception:
+        raise DjMongoUserError("Cannot process email verification request!")
 
 def send_password_reset_email(request):
-    pass 
+    if request.method != "POST":
+        raise DjMongoUserError("Password reset request must be a POST request!")
+    try:
+        User.send_email(request, type=EmailTypes.RESET)
+    except Exception:
+        raise DjMongoUserError("Cannot send password reset email!")
 
 def handle_password_reset_request(request):
-    pass
-
-def send_password_recovery_email(request):
-    pass 
-
-def handle_password_recovery_request(request):
-    pass 
-
+    if request.method != "PUT":
+        raise DjMongoUserError("Password reset email processing request must be a PUT request!")
+    try:
+        User.handle_email_request(request, type=EmailTypes.RESET)   
+    except Exception:
+        raise DjMongoUserError("Cannot process password reset request!")
 

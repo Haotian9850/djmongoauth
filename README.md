@@ -28,7 +28,7 @@ def my_view_handler(request):
     ...
 ```
 - `request.method` must be `POST`
-- Body of `request` must have these attributes and they must be well-formed: `username`, `email`, `password`. Password can be cleartext (`djmongouser` takes care of hashing / decrypting)
+- Body of `request` must have these attributes and they must be well-formed: `username`, `email`, `password`. Password can be cleartext (`djmongouser` takes care of hashing / decryption)
 
 ### Log in 
 ```
@@ -101,28 +101,7 @@ def my_view_handler_2(request):
     except DjMongoUserError as e:
         # your business logic to handle errors, etc.
 ```
-- Body of `request` for `my_view_handler_1` must have these attributes: `username`
-
-### Password recovery
-```
-from djmongouser.utils import send_password_recovery_email, handle_password_recovery_request
-from djmongouser.DjMongoUserError import DjMongoUserError
-
-# handler for password recovery
-def my_view_handler_1(request):
-    try:
-        send_password_recovery_email(request)
-    except DjMongoUserError as e:
-        # your business logic to handle errors, etc.
-
-# handle password recovery request
-def my_view_handler_2(request):
-    try:
-        handle_password_recovery_request(request)
-    except DjMongoUserError as e:
-        # your business logic to handle errors, etc.
-```
-- Body of `request` for `my_view_handler_1` must have these attributes: `username`
+- Body of `request` for `my_view_handler_1` must have these attributes: `new_password`. `new_password` can be cleartext (`djmongouser` takes care of hashing / decryption)
 
 
 
