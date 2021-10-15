@@ -1,0 +1,2 @@
+class DjMongoAuthError(RuntimeError):
+    pass 

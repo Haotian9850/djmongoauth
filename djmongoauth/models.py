@@ -8,10 +8,10 @@ from djongo.sql2mongo import SQLDecodeError
 from django.contrib.auth.hashers import make_password, check_password
 from bson.objectid import ObjectId
 
-from ..DjMongoUserError import DjMongoUserError
-from ..common.EmailFactory import EmailFactory
-from ..common.EmailTypes import EmailTypes
-from ..common.EmailUtils import send_email
+from DjMongoAuthError import DjMongoAuthError
+from common.EmailFactory import EmailFactory
+from common.EmailTypes import EmailTypes
+from common.EmailUtils import send_email
 
 class TemporaryAuthenticator(models.Model):
     _id = models.ObjectIdField()
@@ -63,7 +63,7 @@ class Session(models.Model):
     def parse_x_auth_token(x_auth_token:str)->tuple:
         tokens = x_auth_token.split("&")
         if len(tokens) < 3:
-            raise DjMongoUserError("Failed to parse x_auth_token: {}".format(x_auth_token))
+            raise DjMongoAuthError("Failed to parse x_auth_token: {}".format(x_auth_token))
         return (
             tokens[0].split("=")[1],
             tokens[1].split("=")[1],
@@ -83,23 +83,23 @@ class User(models.Model):
         try:
             self.save()
         except SQLDecodeError as e:
-            raise DjMongoUserError("Username or email has already been registered")
+            raise DjMongoAuthError("Username or email has already been registered")
 
     @staticmethod
     def login(username, password)->str:
         try:
             user = User.objects.get(username=username)
         except Exception as e:
-            raise DjMongoUserError(str(e))
+            raise DjMongoAuthError(str(e))
         if not check_password(password, user.password):
-            raise DjMongoUserError("Password is incorrect for user {}".format(username))
+            raise DjMongoAuthError("Password is incorrect for user {}".format(username))
         try:
             existing_sessions = Session.objects.filter(user_id=str(user._id))
             for s in existing_sessions:
                 if not s.has_expired():
                     return s.x_auth_token
         except Exception as e:
-            raise DjMongoUserError(str(e))
+            raise DjMongoAuthError(str(e))
         new_session = Session()
         new_session.user_id = str(user._id)
         new_session.set_expires_at()
@@ -113,10 +113,10 @@ class User(models.Model):
         # don't fail silently here (unlike default django logout() call)
         x_auth_token = request.META.get("HTTP_AUTHORIZATION")
         if not x_auth_token:
-            raise DjMongoUserError("No token found in request header!")
+            raise DjMongoAuthError("No token found in request header!")
         exp, user_id, _, session_key = Session.parse_x_auth_token(x_auth_token)
         if calendar.timegm(datetime.now().utctimetuple()) > int(exp):
-            raise DjMongoUserError("Unable to log out since token has already expired")
+            raise DjMongoAuthError("Unable to log out since token has already expired")
         has_valid_session = False 
         existing_sessions = Session.objects.filter(user_id=user_id)
         if len(existing_sessions):
@@ -125,7 +125,7 @@ class User(models.Model):
                     has_valid_session = True 
                     break
         if not has_valid_session:
-            raise DjMongoUserError("Session key not found!")
+            raise DjMongoAuthError("Session key not found!")
         # delete all sessions
         existing_sessions.delete()
 
@@ -136,7 +136,7 @@ class User(models.Model):
         try:
             user = User.objects.get(_id=ObjectId(user_id))
         except Exception:
-            raise DjMongoUserError("User not found!")
+            raise DjMongoAuthError("User not found!")
         temp_auth = TemporaryAuthenticator()
         temp_auth.user_id = user_id
         temp_auth.generate_authenticator()
@@ -152,9 +152,9 @@ class User(models.Model):
             send_email(mail_to_be_sent)
         except Exception as e:
             if type == EmailTypes.VERIFY:
-                raise DjMongoUserError("Failed to send verification email: {}".format(str(e)))
+                raise DjMongoAuthError("Failed to send verification email: {}".format(str(e)))
             elif type == EmailTypes.RESET:
-                raise DjMongoUserError("Failed to send password reset email: {}".format(str(e)))
+                raise DjMongoAuthError("Failed to send password reset email: {}".format(str(e)))
 
     @staticmethod
     def handle_email_request(request, type:EmailTypes):
@@ -163,7 +163,7 @@ class User(models.Model):
             assert authenticator
             temp_auth = TemporaryAuthenticator.objects.get(authenticator=authenticator)
             if temp_auth.has_expired():
-                raise DjMongoUserError("Invalid session!")
+                raise DjMongoAuthError("Invalid session!")
             user = User.objects.get(_id=ObjectId(temp_auth.user_id))
             if type == EmailTypes.VERIFY:
                 user.email_verified = True 
@@ -177,7 +177,7 @@ class User(models.Model):
                 Session.objects.filter(user_id=str(user._id)).delete()
             temp_auth.delete()
         except Exception as e:
-            raise DjMongoUserError("Cannot process email verification request: {}".format(str(e))) 
+            raise DjMongoAuthError("Cannot process email verification request: {}".format(str(e))) 
 
 
 

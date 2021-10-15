@@ -1,2 +1,0 @@
-class DjMongoUserError(RuntimeError):
-    pass 
