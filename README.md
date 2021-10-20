@@ -1,13 +1,13 @@
-# Using djmongouser
+# Using djmongoauth
 
 ## What is it?
-`djmongouser` provides out-of-the-box support for basic authentication and some additional operations including user registration, login, logout, email verification, password reset and recovery for backends built with the Django web framework and MongoDB.
+`djmongoauth` provides out-of-the-box support for basic user management and additional operations including user registration, login, logout, email verification, password recovery for backends built with the Django web framework and MongoDB.
 
-`djmongouser` is based on `djongo`, a MongoDB ORM for Django.
+`djmongoauth` is based on `djongo`, a MongoDB ORM for Django.
 
 ## Use cases
 ### User object
-User object is the core of the `djmongouser`. It represents a authenticable entity. The primary attributes of a default user instance are:
+User object is the core of the `djmongoauth`. It represents a authenticable entity. The primary attributes of a default user instance are:
 
 - `username`
 - `email`
@@ -17,29 +17,29 @@ User object is the core of the `djmongouser`. It represents a authenticable enti
 
 ### Register a new user
 ```
-from djmongouser.utils import register
-from djmongouser.DjMongoUserError import DjMongoUserError
+from djmongoauth.utils import register
+from djmongoauth.djmongoauthError import djmongoauthError
 
 def my_view_handler(request):
     try:
         register(request)
-    except DjMongoUserError as e:
+    except djmongoauthError as e:
         # your business logic to handle errors, etc.
     ...
 ```
 - `request.method` must be `POST`
-- Body of `request` must have these attributes and they must be well-formed: `username`, `email`, `password`. Password can be cleartext (`djmongouser` takes care of hashing / decryption)
+- Body of `request` must have these attributes and they must be well-formed: `username`, `email`, `password`. Password can be cleartext (`djmongoauth` takes care of hashing / decryption)
 
 ### Log in 
 ```
-from djmongouser.utils import register
-from djmongouser.DjMongoUserError import DjMongoUserError
+from djmongoauth.utils import register
+from djmongoauth.djmongoauthError import djmongoauthError
 
 def my_view_handler(request):
     x_auth_token = None 
     try:
         x_auth_token = login(request)
-    except DjMongoUserError as e:
+    except djmongoauthError as e:
         # your business logic to handle errors, etc.
     assert x_auth_token
 ```
@@ -49,34 +49,34 @@ def my_view_handler(request):
 
 ### Log out 
 ```
-from djmongouser.utils import logout
-from djmongouser.DjMongoUserError import DjMongoUserError
+from djmongoauth.utils import logout
+from djmongoauth.djmongoauthError import djmongoauthError
 
 def my_view_handler(request):
     try:
         logout(request)
-    except DjMongoUserError as e:
+    except djmongoauthError as e:
         # your business logic to handle errors, etc.
 ```
 - `request` must have its `HTTP_AUTHORIATION` header set to the `x_auth_token` returned from `login` call
 
 ### Email verification 
 ```
-from djmongouser.utils import send_verification_email, handle_email_verificiation_request
-from djmongouser.DjMongoUserError import DjMongoUserError
+from djmongoauth.utils import send_verification_email, handle_email_verificiation_request
+from djmongoauth.djmongoauthError import djmongoauthError
 
 # handler for verifying email address
 def my_view_handler_1(request):
     try:
         send_verificaiton_email(request)
-    except DjMongoUserError as e:
+    except djmongoauthError as e:
         # your business logic to handle errors, etc.
 
 # handle email verification request
 def my_view_handler_2(request):
     try:
         handle_email_verification_request(request)
-    except DjMongoUserError as e:
+    except djmongoauthError as e:
         # your business logic to handle errors, etc.
 ```
 - `request` must have its `HTTP_AUTHORIATION` header set to the `x_auth_token` returned from `login` call
@@ -84,24 +84,24 @@ def my_view_handler_2(request):
 
 ### Password reset
 ```
-from djmongouser.utils import send_password_reset_email, handle_password_reset_request
-from djmongouser.DjMongoUserError import DjMongoUserError
+from djmongoauth.utils import send_password_reset_email, handle_password_reset_request
+from djmongoauth.djmongoauthError import djmongoauthError
 
 # handler for resetting password
 def my_view_handler_1(request):
     try:
         send_password_reset_email(request)
-    except DjMongoUserError as e:
+    except djmongoauthError as e:
         # your business logic to handle errors, etc.
 
 # handle password reset request
 def my_view_handler_2(request):
     try:
         handle_password_reset_request(request)
-    except DjMongoUserError as e:
+    except djmongoauthError as e:
         # your business logic to handle errors, etc.
 ```
-- Body of `request` for `my_view_handler_1` must have these attributes: `new_password`. `new_password` can be cleartext (`djmongouser` takes care of hashing / decryption)
+- Body of `request` for `my_view_handler_1` must have these attributes: `new_password`. `new_password` can be cleartext (`djmongoauth` takes care of hashing / decryption)
 
 
 

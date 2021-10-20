@@ -1,3 +1,1 @@
-from django.shortcuts import render
-
-# Create your views here.
+from djmongoauth.models import User
