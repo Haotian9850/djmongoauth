@@ -3,6 +3,7 @@ import json
 from django.views.decorators.csrf import csrf_exempt
 from djmongoauth.models import User
 from djmongoauth.DjMongoAuthError import DjMongoAuthError
+from djmongoauth.common.EmailTypes import EmailTypes
 
 @csrf_exempt
 def register(request):
@@ -38,6 +39,7 @@ def logout(request):
         return JsonResponse({"error": str(e)}, status=400)
     return HttpResponse(status=204)
 
+@csrf_exempt
 def verify_email(request):
     if request.method == "POST":
         return _send_verify_email(request)
@@ -47,11 +49,21 @@ def verify_email(request):
         return HttpResponse(status=405)
 
 def _send_verify_email(request):
-    pass 
+    try:
+        User.send_email(request, type=EmailTypes.VERIFY)
+        return HttpResponse(status=201)
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=400)
 
-def _handle_email_verification(requrst):
-    pass 
+def _handle_email_verification(request):
+    try:
+        User.handle_email_request(request, EmailTypes.VERIFY)
+        return HttpResponse(status=200)
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=400)
+    
 
+@csrf_exempt
 def reset_password(request):
     if request.method == "POST":
         return _send_recovery_email(request)
@@ -61,9 +73,17 @@ def reset_password(request):
         return HttpResponse(status=405)
 
 def _send_recovery_email(request):
-    pass 
+    try:
+        User.send_email(request, type=EmailTypes.RESET)
+        return HttpResponse(status=200)
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=400)
 
 def _handle_password_recovery(request):
-    pass 
+    try:
+        User.handle_email_request(request, EmailTypes.RESET)
+        return HttpResponse(status=200)
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=400)
 
 

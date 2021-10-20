@@ -3,6 +3,7 @@ import calendar
 import secrets
 import json
 
+from django.conf import settings
 from djongo import models
 from djongo.sql2mongo import SQLDecodeError
 from django.contrib.auth.hashers import make_password, check_password
@@ -43,7 +44,7 @@ class Session(models.Model):
         return expires_at_ntz < datetime.now()
     
     def set_expires_at(self):
-        self.expires_at = datetime.now() + timedelta(hours=168) # expires in a week
+        self.expires_at = datetime.now() + timedelta(hours=settings.SESSION_EXPIRE_IN_HOUR) # expires in a week
     
     def generate_x_auth_token(self, username:str):
         assert self.session_key
@@ -132,7 +133,7 @@ class User(models.Model):
 
     @staticmethod
     def send_email(request, type:EmailTypes):
-        user_id = Session.parse_x_auth_token(request.META["HTTP_AUTHORIZATION"])
+        user_id = Session.parse_x_auth_token(request.META["HTTP_AUTHORIZATION"])[1]
         user = None 
         try:
             user = User.objects.get(_id=ObjectId(user_id))

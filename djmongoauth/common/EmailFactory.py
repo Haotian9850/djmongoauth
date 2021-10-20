@@ -1,11 +1,11 @@
 from django.conf import settings
 from .EmailTypes import EmailTypes
-from datetime import datetime
 
 from .Email import Email
 
 class EmailFactory():
     SITE_URL = settings.SITE_URL
+    IS_HTTPS = settings.IS_HTTPS
     EMAIL_HOST_USER = settings.EMAIL_HOST_USER
     PASSWORD_RESET_EMAIL_SUBJECT = "Reset your password on {}".format(SITE_URL)
     VERIFY_EMAIL_SUBJECT = "Verify your e-mail to finish signing up for {}".format(SITE_URL)
@@ -27,9 +27,11 @@ class EmailFactory():
         assert kwargs.get("user")
         temp_auth = kwargs["temp_auth"]
         user = kwargs["user"]
-        today = datetime.now().strftime("%m / %d / %Y")
         verify_link = "{}/verify?a={}".format(
-            EmailFactory.MAIN_SITE,
+            "{}://{}".format(
+                "https" if EmailFactory.IS_HTTPS else "http",
+                EmailFactory.SITE_URL
+            ),
             temp_auth.authenticator
         )
         expires_at = temp_auth.expires_at.strftime("%Y-%m-%d %H:%M:%S")
@@ -64,10 +66,12 @@ class EmailFactory():
         user = kwargs["user"]
         temp_auth = kwargs["temp_auth"]
         reset_link = "{}/reset?a={}".format(
-            EmailFactory.MAIN_SITE,
+            "{}://{}".format(
+                "https" if EmailFactory.IS_HTTPS else "http",
+                EmailFactory.SITE_URL
+            ),
             temp_auth.authenticator
         )
-        today = datetime.now().strftime("%m / %d / %Y")
         expires_at = temp_auth.expires_at.strftime("%Y-%m-%d %H:%M:%S")
         html_message = """
         <p>Hello {username},</p><p><br></p><p>A request has been received to change the password for your account on {site_url}</p><p>Please follow this link to reset your password: {reset_link}</p><p>This link will expire on {expires_at} UTC</p><p>If you did not initiate this request, please ignore this email. </p>
@@ -88,7 +92,7 @@ class EmailFactory():
             subject=EmailFactory.PASSWORD_RESET_EMAIL_SUBJECT,
             text_message=text_message,
             html_message=html_message,
-            from_email=EmailFactory.PASSWORD_RESET_EMAIL_FROM,
+            from_email=EmailFactory.EMAIL_HOST_USER,
             to_email=user.email
         )
 
