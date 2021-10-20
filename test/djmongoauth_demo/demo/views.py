@@ -1,9 +1,10 @@
 from django.http import HttpResponse, JsonResponse
 import json 
-
+from django.views.decorators.csrf import csrf_exempt
 from djmongoauth.models import User
 from djmongoauth.DjMongoAuthError import DjMongoAuthError
 
+@csrf_exempt
 def register(request):
     if request.method != "POST":
         return HttpResponse(status=405)    # incorrect request method
@@ -18,6 +19,7 @@ def register(request):
         return JsonResponse({"error": str(e)}, status=400)
     return HttpResponse(status=201)
 
+@csrf_exempt
 def login(request):
     if request.method != "POST":
         return HttpResponse(status=405)
@@ -28,6 +30,7 @@ def login(request):
         return JsonResponse({"error": str(e)}, status=400)
     return JsonResponse({"token": x_auth_token})
 
+@csrf_exempt
 def logout(request):
     try:
         User.logout(request)
@@ -35,16 +38,32 @@ def logout(request):
         return JsonResponse({"error": str(e)}, status=400)
     return HttpResponse(status=204)
 
-def send_verify_email(request):
+def verify_email(request):
+    if request.method == "POST":
+        return _send_verify_email(request)
+    elif request.method == "PUT":
+        return _handle_email_verification(request)
+    else:
+        return HttpResponse(status=405)
+
+def _send_verify_email(request):
     pass 
 
-def handle_email_verification(requrst):
+def _handle_email_verification(requrst):
     pass 
 
-def send_recovery_email(request):
+def reset_password(request):
+    if request.method == "POST":
+        return _send_recovery_email(request)
+    elif request.method == "PUT":
+        return _handle_password_recovery(request)
+    else:
+        return HttpResponse(status=405)
+
+def _send_recovery_email(request):
     pass 
 
-def handle_password_recovery(request):
+def _handle_password_recovery(request):
     pass 
 
 

@@ -81,6 +81,7 @@ class User(models.Model):
 
     def register(self):
         try:
+            self.password = make_password(self.password)
             self.save()
         except SQLDecodeError as e:
             raise DjMongoAuthError("Username or email has already been registered")
@@ -104,7 +105,7 @@ class User(models.Model):
         new_session.user_id = str(user._id)
         new_session.set_expires_at()
         new_session.generate_session_key()
-        new_session.generate_x_auth_token()
+        new_session.generate_x_auth_token(username=username)
         new_session.save()
         return new_session.x_auth_token
 
