@@ -32,7 +32,7 @@ def login(request):
     return JsonResponse({"token": x_auth_token})
 
 @csrf_exempt
-@authenticated
+@authenticated()
 def logout(request):
     try:
         User.logout(request)
@@ -41,7 +41,7 @@ def logout(request):
     return HttpResponse(status=204)
 
 @csrf_exempt
-@authenticated
+@authenticated()
 def verify_email(request):
     if request.method == "POST":
         return _send_verify_email(request)
