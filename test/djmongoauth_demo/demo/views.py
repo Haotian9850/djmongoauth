@@ -2,8 +2,8 @@ from django.http import HttpResponse, JsonResponse
 import json 
 from django.views.decorators.csrf import csrf_exempt
 from djmongoauth.models import User
-from djmongoauth.DjMongoAuthError import DjMongoAuthError
 from djmongoauth.common.EmailTypes import EmailTypes
+from djmongoauth.decorators.authenticated import authenticated
 
 @csrf_exempt
 def register(request):
@@ -32,6 +32,7 @@ def login(request):
     return JsonResponse({"token": x_auth_token})
 
 @csrf_exempt
+@authenticated
 def logout(request):
     try:
         User.logout(request)
@@ -40,6 +41,7 @@ def logout(request):
     return HttpResponse(status=204)
 
 @csrf_exempt
+@authenticated
 def verify_email(request):
     if request.method == "POST":
         return _send_verify_email(request)
