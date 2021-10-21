@@ -5,6 +5,14 @@
 
 `djmongoauth` is based on `djongo`, a MongoDB ORM for Django.
 
+## Installation
+Install `djmongoauth` through pip:
+```
+haotian@u8fZOlcHP:~$ sudo pip3 install djmongoauth
+```
+
+PyPI package can be found at https://pypi.org/project/djmongoauth/0.0.1/
+
 ## Use cases
 ### User object
 User object is the core of the `djmongoauth`. It represents a authenticable entity. The primary attributes of a default user instance are:
